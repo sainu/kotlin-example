@@ -3,18 +3,43 @@ package com.example.demo.service
 import com.example.demo.datasource.BankDataSource
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 
 class BankServiceTest {
     private val dataSource: BankDataSource = mockk(relaxed = true)
     private val bankService = BankService(dataSource = dataSource)
 
-    @Test
-    fun `should call its data source to retrieve banks`() {
-        // when
-        bankService.getBanks()
+    @Nested
+    @DisplayName("getBanks()")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class GetBanks {
+        @Test
+        fun `should call its data source to retrieve banks`() {
+            // when
+            bankService.getBanks()
 
-        // then
-        verify(exactly = 1) { dataSource.retrieveBanks() }
+            // then
+            verify(exactly = 1) { dataSource.retrieveBanks() }
+        }
+    }
+
+    @Nested
+    @DisplayName("getBank()")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class GetBank {
+        @Test
+        fun `should call its data source to retrieve bank`() {
+            // given
+            val accountNumber = "1234"
+
+            // when
+            bankService.getBank(accountNumber)
+
+            // then
+            verify(exactly = 1) { dataSource.retrieveBank(accountNumber) }
+        }
     }
 }
