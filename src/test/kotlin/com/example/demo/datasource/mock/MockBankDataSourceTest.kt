@@ -56,13 +56,10 @@ internal class MockBankDataSourceTest {
             // given
             val accountNumber = "does_not_exist"
 
-            // when
-            val error = assertThrows<NoSuchElementException> {
+            // when/then
+            assertThrows<NoSuchElementException> {
                 mockDataSource.retrieveBank(accountNumber)
             }
-
-            // then
-            assertThat(error.message).isEqualTo("Could not find a bank with account number $accountNumber")
         }
     }
 
@@ -99,13 +96,10 @@ internal class MockBankDataSourceTest {
             // given
             val newBank = Bank("1234", 13.0, 3)
 
-            // when
-            val error = assertThrows<IllegalArgumentException> {
+            // when/then
+            assertThrows<IllegalArgumentException> {
                 mockDataSource.createBank(newBank)
             }
-
-            // then
-            assertThat(error.message).isEqualTo("Bank with account number ${newBank.accountNumber} already exists")
         }
 
         @Test
@@ -120,6 +114,82 @@ internal class MockBankDataSourceTest {
 
             // then
             assertThat(mockDataSource.retrieveBanks().last()).isNotEqualTo(newBank)
+        }
+    }
+
+    @Nested
+    @DisplayName("updateBank()")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class UpdateBank {
+        @Test
+        fun `should return the bank same as input`() {
+            // given
+            val currentBank = mockDataSource.retrieveBanks().first()
+            val updatedBank = Bank(
+                accountNumber = currentBank.accountNumber,
+                trust = currentBank.trust + 1.0,
+                transactionFee = currentBank.transactionFee + 1
+            )
+
+            // when/then
+            assertThat(
+                mockDataSource.updateBank(updatedBank)
+            ).isEqualTo(updatedBank)
+        }
+
+        @Test
+        fun `should update the bank with given account number`() {
+            // given
+            val currentBank = mockDataSource.retrieveBanks().first()
+            val updatedBank = Bank(
+                accountNumber = currentBank.accountNumber,
+                trust = currentBank.trust + 1.0,
+                transactionFee = currentBank.transactionFee + 1
+            )
+
+            // when
+            mockDataSource.updateBank(updatedBank)
+
+            // then
+            assertThat(
+                mockDataSource.retrieveBank(updatedBank.accountNumber)
+            ).isEqualTo(updatedBank)
+        }
+
+        @Test
+        fun `should throw NoSuchElementException if no bank with given account number exists`() {
+            // given
+            val bank = Bank(
+                accountNumber = "does_not_exist",
+                trust = 1.0,
+                transactionFee = 1
+            )
+
+            // when/then
+            assertThrows<NoSuchElementException> {
+                mockDataSource.updateBank(bank)
+            }
+        }
+
+        @Test
+        fun `should not update banks if no bank with given account number exists`() {
+            // given
+            val beforeBanks = mockDataSource.retrieveBanks()
+            val bank = Bank(
+                accountNumber = "does_not_exist",
+                trust = 1.0,
+                transactionFee = 1
+            )
+
+            // when
+            assertThrows<NoSuchElementException> {
+                mockDataSource.updateBank(bank)
+            }
+
+            // then
+            assertThat(
+                mockDataSource.retrieveBanks()
+            ).isEqualTo(beforeBanks)
         }
     }
 }

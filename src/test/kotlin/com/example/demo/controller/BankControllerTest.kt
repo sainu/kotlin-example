@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.patch
 import org.springframework.test.web.servlet.post
 
 @SpringBootTest
@@ -97,17 +98,28 @@ internal class BankControllerTest @Autowired constructor(
                 .andDo { print() }
                 .andExpect {
                     status { isCreated() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.accountNumber") { value("acc123") }
-                    jsonPath("$.trust") { value("31.415") }
-                    jsonPath("$.transactionFee") { value("2") }
+                    content {
+                        contentType(MediaType.APPLICATION_JSON)
+                        json(objectMapper.writeValueAsString(newBank))
+                    }
+                }
+
+            mockMvc.get("$baseUrl/${newBank.accountNumber}")
+                .andExpect {
+                    content {
+                        json(objectMapper.writeValueAsString(newBank))
+                    }
                 }
         }
 
         @Test
         fun `should return BAD REQUEST if bank with given account number already exists`() {
             // given
-            val invalidBank = Bank("1234", 1.0, 1)
+            val invalidBank = Bank(
+                accountNumber = "1234",
+                trust = 1.0,
+                transactionFee = 1
+            )
 
             // when
             val performPost = mockMvc.post(baseUrl) {
@@ -121,6 +133,66 @@ internal class BankControllerTest @Autowired constructor(
                 .andExpect {
                     status { isBadRequest() }
                 }
+        }
+    }
+
+    @Nested
+    @DisplayName("PATCH /api/banks")
+    @TestInstance(Lifecycle.PER_CLASS)
+    inner class PatchExistingBank {
+        @Test
+        fun `should update an existing bank`() {
+            // given
+            val updatedBank = Bank(
+                accountNumber = "1234",
+                trust = 1.0,
+                transactionFee = 1
+            )
+
+            // when
+            val performPatchRequest = mockMvc.patch(baseUrl) {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(updatedBank)
+            }
+
+            // then
+            performPatchRequest
+                .andDo { print() }
+                .andExpect {
+                    status { isOk() }
+                    content {
+                        contentType(MediaType.APPLICATION_JSON)
+                        json(objectMapper.writeValueAsString(updatedBank))
+                    }
+                }
+
+            mockMvc.get("$baseUrl/${updatedBank.accountNumber}")
+                .andExpect {
+                    content {
+                        json(objectMapper.writeValueAsString(updatedBank))
+                    }
+                }
+        }
+
+        @Test
+        fun `should return BAD REQUEST if no bank with given account number exists`() {
+            // given
+            val invalidBank = Bank(
+                accountNumber = "does_not_exist",
+                trust = 1.0,
+                transactionFee = 1
+            )
+
+            // when
+            val performPatchRequest = mockMvc.patch(baseUrl) {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(invalidBank)
+            }
+
+            // then
+            performPatchRequest
+                .andDo { print() }
+                .andExpect { status { isNotFound() } }
         }
     }
 }

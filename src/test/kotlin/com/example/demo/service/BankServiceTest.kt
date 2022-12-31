@@ -51,13 +51,38 @@ class BankServiceTest {
         @Test
         fun `should call its data source to add bank`() {
             // given
-            val bank = Bank("foo", 14.2, 1)
+            val bank = Bank(
+                accountNumber = "foo",
+                trust = 14.2,
+                transactionFee = 1
+            )
 
             // when
             bankService.addBank(bank)
 
             // then
             verify(exactly = 1) { dataSource.createBank(bank) }
+        }
+    }
+
+    @Nested
+    @DisplayName("updateBank()")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class UpdateBank {
+        @Test
+        fun `should call its data source to update bank`() {
+            // given
+            val bank = Bank(
+                accountNumber = "foo",
+                trust = 12.2,
+                transactionFee = 1
+            )
+
+            // when
+            bankService.updateBank(bank)
+
+            // then
+            verify(exactly = 1) { dataSource.updateBank(bank) }
         }
     }
 }
