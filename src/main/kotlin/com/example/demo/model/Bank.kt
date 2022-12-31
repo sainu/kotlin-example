@@ -3,5 +3,5 @@ package com.example.demo.model
 data class Bank(
     val accountNumber: String,
     val trust: Double,
-    val transactionFree: Int
+    val transactionFee: Int
 )

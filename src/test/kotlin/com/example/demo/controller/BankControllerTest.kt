@@ -52,7 +52,7 @@ internal class BankControllerTest {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.trust") { value("3.14") }
-                    jsonPath("$.transactionFree") { value("17") }
+                    jsonPath("$.transactionFee") { value("17") }
                 }
         }
 
