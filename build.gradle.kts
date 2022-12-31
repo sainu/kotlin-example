@@ -25,6 +25,12 @@ dependencies {
 	// Spring Boot
 	implementation("org.springframework.boot:spring-boot-starter")
 
+	// Web
+	implementation("org.springframework.boot:spring-boot-starter-web")
+
+	// Dev tools
+	developmentOnly("org.springframework.boot:spring-boot-devtools")
+
 	// Testing libraries
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
