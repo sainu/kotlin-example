@@ -1,6 +1,7 @@
 package com.example.demo.service
 
 import com.example.demo.datasource.BankDataSource
+import com.example.demo.model.Bank
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.DisplayName
@@ -40,6 +41,23 @@ class BankServiceTest {
 
             // then
             verify(exactly = 1) { dataSource.retrieveBank(accountNumber) }
+        }
+    }
+
+    @Nested
+    @DisplayName("addBank()")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class AddBank {
+        @Test
+        fun `should call its data source to add bank`() {
+            // given
+            val bank = Bank("foo", 14.2, 1)
+
+            // when
+            bankService.addBank(bank)
+
+            // then
+            verify(exactly = 1) { dataSource.createBank(bank) }
         }
     }
 }
