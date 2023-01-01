@@ -85,4 +85,21 @@ class BankServiceTest {
             verify(exactly = 1) { dataSource.updateBank(bank) }
         }
     }
+
+    @Nested
+    @DisplayName("deleteBank()")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class DeleteBank {
+        @Test
+        fun `should call its data source to delete bank`() {
+            // given
+            val accountNumber = "1234"
+
+            // when
+            bankService.deleteBank(accountNumber)
+
+            // then
+            verify(exactly = 1) { dataSource.deleteBank(accountNumber) }
+        }
+    }
 }

@@ -192,4 +192,37 @@ internal class MockBankDataSourceTest {
             ).isEqualTo(beforeBanks)
         }
     }
+
+    @Nested
+    @DisplayName("deleteBank()")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class DeleteBank {
+        @Test
+        fun `should delete the bank with the given account number`() {
+            // given
+            val accountNumber = "1234"
+            assertThat(
+                mockDataSource.retrieveBank(accountNumber)
+            ).isNotNull
+
+            // when
+            mockDataSource.deleteBank(accountNumber)
+
+            // then
+            assertThrows<NoSuchElementException> {
+                mockDataSource.retrieveBank(accountNumber)
+            }
+        }
+
+        @Test
+        fun `should throw NoSuchElementException if no bank with the given account number exists`() {
+            // given
+            val invalidAccountNumber = "does_not_exist"
+
+            // when/then
+            assertThrows<NoSuchElementException> {
+                mockDataSource.deleteBank(invalidAccountNumber)
+            }
+        }
+    }
 }
